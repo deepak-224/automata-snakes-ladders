@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Snakes & Ladders (Automata Edition) — Setup</title>
+<style>
+  :root { --accent:#1e88e5; }
+  body{
+    margin:0; min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg,#e8f0ff,#fdf6f8);
+    font-family:system-ui,Segoe UI,Roboto,Arial;
+  }
+  .card{
+    background:#fff; padding:28px; border-radius:12px;
+    box-shadow:0 12px 36px rgba(0,0,0,0.12);
+    width:340px; text-align:left;
+  }
+  h1{ margin:0 0 6px; font-size:20px; color:#111; }
+  p.subtitle{ margin:0 0 18px; color:#556; font-size:13px;}
+  label{ display:block; margin-top:10px; font-weight:600; color:#333; }
+  input, select { width:100%; padding:8px 10px; margin-top:8px; border-radius:8px; border:1px solid #d7dee9; box-sizing:border-box; }
+  .players { margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+  .row { display:flex; gap:8px; align-items:center; }
+  .pawn-preview { width:24px; height:28px; border-radius:6px; box-shadow:inset 0 -6px 12px rgba(0,0,0,0.08); flex:0 0 24px; }
+  .btn { margin-top:16px; width:100%; padding:10px; border-radius:10px; border:0; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; }
+  .btn:active{ transform:translateY(1px); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Snakes & Ladders</h1>
+    <p class="subtitle">Automata Edition — classroom mode</p>
+
+    <label>Number of players</label>
+    <select id="playerCount">
+      <option value="2">2 players</option>
+      <option value="3">3 players</option>
+      <option value="4">4 players</option>
+    </select>
+
+    <div id="playersArea" class="players"></div>
+
+    <button id="startBtn" class="btn">Start Game →</button>
+  </div>
+
+<script>
+const pawnColors = ['#e53935','#1e88e5','#43a047','#f57c00'];
+const playersArea = document.getElementById('playersArea');
+const playerCount = document.getElementById('playerCount');
+
+function renderInputs(){
+  playersArea.innerHTML = '';
+  const n = parseInt(playerCount.value);
+  for(let i=0;i<n;i++){
+    const wrapper = document.createElement('div');
+    wrapper.className = 'row';
+    const preview = document.createElement('div');
+    preview.className = 'pawn-preview';
+    preview.style.background = `linear-gradient(180deg, ${lighten(pawnColors[i],0.25)}, ${pawnColors[i]})`;
+    const input = document.createElement('input');
+    input.type='text';
+    input.id = 'p' + (i+1);
+    input.value = `Player ${i+1}`;
+    input.style.flex = '1';
+    wrapper.appendChild(preview);
+    wrapper.appendChild(input);
+    playersArea.appendChild(wrapper);
+  }
+}
+function lighten(hex, amt){
+  // simple lighten for preview
+  const c = hex.replace('#','');
+  const num = parseInt(c,16);
+  let r = (num>>16)+ Math.round(255*amt);
+  let g = ((num>>8)&0x00FF)+ Math.round(255*amt);
+  let b = (num & 0x0000FF)+ Math.round(255*amt);
+  r=Math.min(255,r); g=Math.min(255,g); b=Math.min(255,b);
+  return `#${(r<<16 | g<<8 | b).toString(16).padStart(6,'0')}`;
+}
+
+playerCount.addEventListener('change', renderInputs);
+document.getElementById('startBtn').addEventListener('click', () => {
+  const n = parseInt(playerCount.value);
+  const names = [];
+  for(let i=1;i<=n;i++){
+    const v = document.getElementById('p'+i).value.trim() || `Player ${i}`;
+    names.push(v);
+  }
+  const params = new URLSearchParams();
+  params.set('names', names.join('|'));
+  params.set('count', n);
+  window.location.href = 'game.html?' + params.toString();
+});
+
+renderInputs();
+</script>
+</body>
+</html>
